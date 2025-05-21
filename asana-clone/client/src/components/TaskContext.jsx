@@ -9,15 +9,15 @@ export const TaskProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
-  const fetchTasks = async (Id) => {
+  const fetchTasks = async (userId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/tasks/${Id}`);
+      const response = await axios.get(`http://localhost:5000/api/tasks/${userId}`);
       setTasks(response.data);
-      setMessage({ type: 'success', text: 'Tasks fetched successfully!' });
+      setMessage({ type: 'success', text: 'Tasks fetch ho gaye!' });
     } catch (error) {
-      console.error('Error fetching tasks:', error);
-      setMessage({ type: 'error', text: 'Failed to fetch tasks.' });
+      console.error('Tasks fetch karne mein error:', error);
+      setMessage({ type: 'error', text: 'Tasks fetch nahi hue.' });
     } finally {
       setLoading(false);
     }
@@ -26,12 +26,16 @@ export const TaskProvider = ({ children }) => {
   const addTask = async (task) => {
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:5000/api/tasks', task);
+      const response = await axios.post(`http://localhost:5000/api/tasks/${task.userId}`, {
+        title: task.title,
+        description: task.description,
+        completed: task.completed || false,
+      });
       setTasks([...tasks, response.data]);
-      setMessage({ type: 'success', text: 'Task added successfully!' });
+      setMessage({ type: 'success', text: 'Task add ho gaya!' });
     } catch (error) {
-      console.error('Error adding task:', error);
-      setMessage({ type: 'error', text: 'Failed to add task.' });
+      console.error('Task add karne mein error:', error.message);
+      setMessage({ type: 'error', text: 'Task add nahi hua.' });
     } finally {
       setLoading(false);
     }
@@ -42,10 +46,10 @@ export const TaskProvider = ({ children }) => {
       setLoading(true);
       const response = await axios.put(`http://localhost:5000/api/tasks/${id}`, updatedTask);
       setTasks(tasks.map(task => (task._id === id ? response.data : task)));
-      setMessage({ type: 'success', text: 'Task updated successfully!' });
+      setMessage({ type: 'success', text: 'Task update ho gaya!' });
     } catch (error) {
-      console.error('Error updating task:', error);
-      setMessage({ type: 'error', text: 'Failed to update task.' });
+      console.error('Task update karne mein error:', error.message);
+      setMessage({ type: 'error', text: 'Task update nahi hua.' });
     } finally {
       setLoading(false);
     }
@@ -56,18 +60,18 @@ export const TaskProvider = ({ children }) => {
       setLoading(true);
       await axios.delete(`http://localhost:5000/api/tasks/${id}`);
       setTasks(tasks.filter(task => task._id !== id));
-      setMessage({ type: 'success', text: 'Task deleted successfully!' });
+      setMessage({ type: 'success', text: 'Task delete ho gaya!' });
     } catch (error) {
-      console.error('Error deleting task:', error);
-      setMessage({ type: 'error', text: 'Failed to delete task.' });
+      console.error('Task delete karne mein error:', error.message);
+      setMessage({ type: 'error', text: 'Task delete nahi hua.' });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user?.userId) {
-      fetchTasks(user.userId);
+    if (user?._id) {
+      fetchTasks(user._id);
     }
   }, [user]);
 
